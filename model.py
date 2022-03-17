@@ -1,10 +1,6 @@
-import tensorflow as tf
-from tensorflow.keras import layers
 from gym import spaces
 import numpy as np
-from stable_baselines.common.policies import ActorCriticPolicy, FeedForwardPolicy
-from stable_baselines.common.distributions import CategoricalProbabilityDistributionType, ProbabilityDistributionType, CategoricalProbabilityDistribution, ProbabilityDistribution
-from stable_baselines.a2c.utils import conv, linear, conv_to_fc
+
 
 def Cnn1(image, **kwargs):
     activ = tf.nn.relu

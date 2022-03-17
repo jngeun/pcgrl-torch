@@ -1,13 +1,12 @@
 #pip install tensorflow==1.15
 #Install stable-baselines as described in the documentation
 
-import model
-from model import FullyConvPolicyBigMap, FullyConvPolicySmallMap, CustomPolicyBigMap, CustomPolicySmallMap
-from utils import get_exp_name, max_exp_idx, load_model, make_vec_envs
-from stable_baselines import PPO2
-from stable_baselines.results_plotter import load_results, ts2xy
+#import model
+#from model import FullyConvPolicyBigMap, FullyConvPolicySmallMap, CustomPolicyBigMap, CustomPolicySmallMap
+#from utils import get_exp_name, max_exp_idx, load_model, make_vec_envs
+from stable_baselines3 import PPO
 
-import tensorflow as tf
+import torch 
 import numpy as np
 import os
 
