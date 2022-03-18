@@ -1,6 +1,8 @@
 from gym import spaces
 import numpy as np
 
+from stable_baselines3.common.policies import ActorCriticPolicy, BaseFeaturesExtractor
+from stable_baselines3.common.distributions import CategoricalDistribution
 
 def Cnn1(image, **kwargs):
     activ = tf.nn.relu
@@ -72,7 +74,7 @@ def FullyConv2(image, n_tools, **kwargs):
     val = conv_to_fc(val)
     return act, val
 
-class NoDenseCategoricalProbabilityDistributionType(ProbabilityDistributionType):
+class NoDenseCategoricalProbabilityDistributionType(CategoricalDistribution):
     def __init__(self, n_cat):
         """
         The probability distribution type for categorical input
@@ -153,10 +155,10 @@ class FullyConvPolicySmallMap(ActorCriticPolicy):
     def value(self, obs, state=None, mask=None):
         return self.sess.run(self.value_flat, {self.obs_ph: obs})
 
-class CustomPolicyBigMap(FeedForwardPolicy):
+class CustomPolicyBigMap(BaseFeaturesExtractor):
     def __init__(self, *args, **kwargs):
         super(CustomPolicyBigMap, self).__init__(*args, **kwargs, cnn_extractor=Cnn2, feature_extraction="cnn")
 
-class CustomPolicySmallMap(FeedForwardPolicy):
+class CustomPolicySmallMap(BaseFeaturesExtractor):
     def __init__(self, *args, **kwargs):
         super(CustomPolicySmallMap, self).__init__(*args, **kwargs, cnn_extractor=Cnn1, feature_extraction="cnn")

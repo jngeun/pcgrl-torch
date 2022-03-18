@@ -7,8 +7,8 @@ import glob
 import numpy as np
 from gym_pcgrl import wrappers
 from stable_baselines3 import PPO
-#from stable_baselines3.bench import Monitor
-from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
+from stable_baselines3.common.monitor import Monitor
+#from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 
 class RenderMonitor(Monitor):
     """

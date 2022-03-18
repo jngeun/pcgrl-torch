@@ -2,8 +2,8 @@
 #Install stable-baselines as described in the documentation
 
 #import model
-#from model import FullyConvPolicyBigMap, FullyConvPolicySmallMap, CustomPolicyBigMap, CustomPolicySmallMap
-#from utils import get_exp_name, max_exp_idx, load_model, make_vec_envs
+from model import CustomPolicyBigMap
+from utils import get_exp_name, max_exp_idx, load_model, make_vec_envs
 from stable_baselines3 import PPO
 
 import torch 
@@ -25,7 +25,7 @@ def callback(_locals, _globals):
     if (n_steps + 1) % 10 == 0:
         x, y = ts2xy(load_results(log_dir), 'timesteps')
         if len(x) > 100:
-           #pdb.set_trace()
+            #pdb.set_trace()
             mean_reward = np.mean(y[-100:])
             print(x[-1], 'timesteps')
             print("Best mean reward: {:.2f} - Last mean reward per episode: {:.2f}".format(best_mean_reward, mean_reward))
@@ -71,7 +71,7 @@ def main(game, representation, experiment, steps, n_cpu, render, logging, **kwar
         n = n + 1
     log_dir = 'runs/{}_{}_{}'.format(exp_name, n, 'log')
     if not resume:
-        os.mkdir(log_dir)
+        os.makedirs(log_dir)
     else:
         model = load_model(log_dir)
     kwargs = {
