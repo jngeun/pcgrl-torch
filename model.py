@@ -153,7 +153,7 @@ class FullyConvPolicySmallMap(ActorCriticPolicy):
 class CustomPolicyBigMap(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 512):
         super(CustomPolicyBigMap, self).__init__(observation_space, features_dim)
-        n_input_channels = obervations_space.shape[0]
+        n_input_channels = observation_space.shape[0]
         self.cnn = nn.Sequential(
             nn.Conv2d(n_input_channels, 32, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
@@ -166,15 +166,21 @@ class CustomPolicyBigMap(BaseFeaturesExtractor):
 
         # Comput shape by doing one forward pass
         with torch.no_grad():
+            # n_flatten = self.cnn(
+            #     torch.as_tensor(np.transpose(observation_space.sample()[None], (0, 3, 1, 2))).float()
+            # ).shape[1]
             n_flatten = self.cnn(
-                torch.as_tensor(observation_space,sample()[None]).float()
+                torch.as_tensor(observation_space.sample()[None]).float()
             ).shape[1]
-
-        self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU)
+            
+        self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU())
 
     def forward(self, observations : torch.Tensor) -> torch.Tensor:
+        #TODO: change method that transpose matrix
+        #observations = torch.from_numpy(np.transpose(observations.numpy(), (0, 3, 1, 2)))
         return self.linear(self.cnn(observations))
 
 class CustomPolicySmallMap(BaseFeaturesExtractor):
     def __init__(self, *args, **kwargs):
         super(CustomPolicySmallMap, self).__init__(*args, **kwargs, cnn_extractor=Cnn1, feature_extraction="cnn")
+

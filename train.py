@@ -3,7 +3,7 @@
 
 #import model
 from model import CustomPolicyBigMap
-from utils import get_exp_name, max_exp_idx, load_model, make_vec_envs
+from utils import get_exp_name, max_exp_idx, load_model, make_vec_envs, PreprocessFrame
 from stable_baselines3 import PPO
 
 import torch 
@@ -73,7 +73,7 @@ def main(game, representation, experiment, steps, n_cpu, render, logging, **kwar
         n = n + 1
     log_dir = 'runs/{}_{}_{}'.format(exp_name, n, 'log')
     if not resume:
-        os.makedirs(log_dir)
+        os.makedirs(log_dir, exist_ok=True)
     else:
         model = load_model(log_dir)
     kwargs = {
@@ -85,8 +85,9 @@ def main(game, representation, experiment, steps, n_cpu, render, logging, **kwar
     if not logging:
         used_dir = None
     env = make_vec_envs(env_name, representation, log_dir, n_cpu, **kwargs)
+    env = PreprocessFrame((kwargs['cropped_size'], kwargs['cropped_size'], n_cpu), env)
     if not resume or model is None:
-        model = PPO("CustomPolicyBigMap", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="./runs")
+        model = PPO("CnnPolicy", env, policy_kwargs=policy, verbose=1, tensorboard_log="./runs")
     else:
         model.set_env(env)
     if not logging:
@@ -100,8 +101,8 @@ representation = 'narrow'
 experiment = None
 steps = 1e8
 render = False
-logging = True
-n_cpu = 50
+logging = False
+n_cpu = 5
 kwargs = {
     'resume': False
 }

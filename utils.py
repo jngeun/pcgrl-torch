@@ -5,6 +5,7 @@ import os
 import re
 import glob
 import numpy as np
+import gym
 from gym_pcgrl import wrappers
 from stable_baselines3 import PPO
 from stable_baselines3.common.monitor import Monitor
@@ -103,3 +104,15 @@ def load_model(log_dir):
             raise Exception('No models are saved')
     model = PPO2.load(model_path)
     return model
+
+class PreprocessFrame(gym.ObservationWrapper):
+    def __init__(self, shape, env=None):
+        super(PreprocessFrame, self).__init__(env)
+        self.shape = (shape[2], shape[0], shape[1])
+        self.observation_space = gym.spaces.Box(low=0.0, high=1.0,
+                                    shape=self.shape)
+
+    def observation(self, obs):  
+        new_obs = np.array(obs, dtype=np.float64).reshape(self.shape)
+
+        return new_obs

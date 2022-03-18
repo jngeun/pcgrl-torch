@@ -2,15 +2,15 @@
 Run a trained agent and get generated maps
 """
 import model
-from stable_baselines import PPO2
+from stable_baselines3 import PPO
 
 import time
 from utils import make_vec_envs
 
 def infer(game, representation, model_path, **kwargs):
     """
-     - max_trials: The number of trials per evaluation.
-     - infer_kwargs: Args to pass to the environment.
+    - max_trials: The number of trials per evaluation.
+    - infer_kwargs: Args to pass to the environment.
     """
     env_name = '{}-{}-v0'.format(game, representation)
     if game == "binary":
@@ -24,7 +24,7 @@ def infer(game, representation, model_path, **kwargs):
         kwargs['cropped_size'] = 10
     kwargs['render'] = True
 
-    agent = PPO2.load(model_path)
+    agent = PPO.load(model_path)
     env = make_vec_envs(env_name, representation, None, 1, **kwargs)
     obs = env.reset()
     obs = env.reset()
