@@ -1,21 +1,16 @@
-from gym import spaces
+import gym
 import numpy as np
 
 from stable_baselines3.common.policies import ActorCriticPolicy, BaseFeaturesExtractor
 from stable_baselines3.common.distributions import CategoricalDistribution
 
+import torch
+import torch.nn as nn
+
 def Cnn1(image, **kwargs):
     activ = tf.nn.relu
     layer_1 = activ(conv(image, 'c1', n_filters=32, filter_size=3, stride=1, init_scale=np.sqrt(2), **kwargs))
     layer_2 = activ(conv(layer_1, 'c2', n_filters=64, filter_size=3, stride=1, init_scale=np.sqrt(2), **kwargs))
-    layer_3 = activ(conv(layer_2, 'c3', n_filters=64, filter_size=3, stride=1, init_scale=np.sqrt(2), **kwargs))
-    layer_3 = conv_to_fc(layer_3)
-    return activ(linear(layer_3, 'fc1', n_hidden=512, init_scale=np.sqrt(2)))
-
-def Cnn2(image, **kwargs):
-    activ = tf.nn.relu
-    layer_1 = activ(conv(image, 'c1', n_filters=32, filter_size=3, stride=2, init_scale=np.sqrt(2), **kwargs))
-    layer_2 = activ(conv(layer_1, 'c2', n_filters=64, filter_size=3, stride=2, init_scale=np.sqrt(2), **kwargs))
     layer_3 = activ(conv(layer_2, 'c3', n_filters=64, filter_size=3, stride=1, init_scale=np.sqrt(2), **kwargs))
     layer_3 = conv_to_fc(layer_3)
     return activ(linear(layer_3, 'fc1', n_hidden=512, init_scale=np.sqrt(2)))
@@ -156,8 +151,29 @@ class FullyConvPolicySmallMap(ActorCriticPolicy):
         return self.sess.run(self.value_flat, {self.obs_ph: obs})
 
 class CustomPolicyBigMap(BaseFeaturesExtractor):
-    def __init__(self, *args, **kwargs):
-        super(CustomPolicyBigMap, self).__init__(*args, **kwargs, cnn_extractor=Cnn2, feature_extraction="cnn")
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 512):
+        super(CustomPolicyBigMap, self).__init__(observation_space, features_dim)
+        n_input_channels = obervations_space.shape[0]
+        self.cnn = nn.Sequential(
+            nn.Conv2d(n_input_channels, 32, kernel_size=3, stride=2, padding=0),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=0),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0),
+            nn.ReLU(),
+            nn.Flatten()
+        )
+
+        # Comput shape by doing one forward pass
+        with torch.no_grad():
+            n_flatten = self.cnn(
+                torch.as_tensor(observation_space,sample()[None]).float()
+            ).shape[1]
+
+        self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU)
+
+    def forward(self, observations : torch.Tensor) -> torch.Tensor:
+        return self.linear(self.cnn(observations))
 
 class CustomPolicySmallMap(BaseFeaturesExtractor):
     def __init__(self, *args, **kwargs):

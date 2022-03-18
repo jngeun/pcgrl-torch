@@ -56,7 +56,9 @@ def main(game, representation, experiment, steps, n_cpu, render, logging, **kwar
         if game == "sokoban":
             policy = FullyConvPolicySmallMap
     else:
-        policy = CustomPolicyBigMap
+        policy = dict(features_extractor_class=CustomPolicyBigMap,\
+        features_extractor_kwargs=dict(features_dim=512)
+        )
         if game == "sokoban":
             policy = CustomPolicySmallMap
     if game == "binary":
@@ -84,7 +86,7 @@ def main(game, representation, experiment, steps, n_cpu, render, logging, **kwar
         used_dir = None
     env = make_vec_envs(env_name, representation, log_dir, n_cpu, **kwargs)
     if not resume or model is None:
-        model = PPO2(policy, env, verbose=1, tensorboard_log="./runs")
+        model = PPO("CustomPolicyBigMap", env, policy_kwargs=policy_kwargs, verbose=1, tensorboard_log="./runs")
     else:
         model.set_env(env)
     if not logging:
