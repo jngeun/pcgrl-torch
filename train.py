@@ -102,7 +102,7 @@ experiment = None
 steps = 1e8
 render = False
 logging = False
-n_cpu = 5
+n_cpu = 3
 kwargs = {
     'resume': False
 }
